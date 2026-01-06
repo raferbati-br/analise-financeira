@@ -1,0 +1,43 @@
+# Analise Financeira
+
+App simples para consultar precos e historico de acoes usando a API da brapi.dev.
+
+## Requisitos
+- Node.js 18+
+
+## Setup
+1) Instale dependencias:
+
+```bash
+npm install
+```
+
+2) Crie o arquivo de ambiente:
+
+```bash
+copy .env.example .env
+```
+
+3) Preencha seu token no `.env`:
+
+```
+BRAPI_API_KEY=SEU_TOKEN_AQUI
+```
+
+## Rodar em desenvolvimento
+
+```bash
+npm run dev
+```
+
+Acesse: http://localhost:3000
+
+## Funcionalidades
+- Consulta de cotacoes
+- Lista de acoes via brapi
+- Historico por ativo
+- Tendencia (alta/baixa/lateral) baseada no periodo selecionado
+
+## Notas
+- Alguns ativos exigem plano com permissao especifica (ex.: BDR).
+- Ajuste `BRAPI_TICKER_TYPES` no `.env` se quiser listar outros tipos.
