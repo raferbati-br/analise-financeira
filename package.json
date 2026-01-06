@@ -1,0 +1,13 @@
+{
+  "name": "financeiro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "App simples para consultar precos de acoes",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "brapi": "^1.0.1"
+  }
+}

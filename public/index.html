@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Consulta Rapida de Acoes</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <header class="hero">
+        <p class="eyebrow">Mercado em tempo quase real</p>
+        <h1>Precos de acoes, sem rodeio</h1>
+        <p class="sub">
+          Digite os tickers separados por virgula para consultar a ultima cotacao
+          disponivel.
+        </p>
+      </header>
+
+      <section class="card">
+        <form id="quote-form">
+          <label for="ticker-filter">Acoes</label>
+          <div class="row">
+            <input
+              id="ticker-filter"
+              type="text"
+              placeholder="Digite para filtrar, ex: PETR"
+              autocomplete="off"
+            />
+            <button type="submit">Consultar</button>
+            <button type="button" id="clear-selection" class="ghost">Limpar</button>
+          </div>
+          <select id="ticker-select" name="symbols" multiple size="8"></select>
+          <p class="hint">Selecione uma ou mais acoes no combo box.</p>
+        </form>
+      </section>
+
+      <section class="card" id="status-card" hidden>
+        <p id="status"></p>
+      </section>
+
+      <section class="table-wrap" id="table-wrap" hidden>
+        <table>
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Ultimo</th>
+              <th>Abertura</th>
+              <th>Min</th>
+              <th>Max</th>
+              <th>Volume</th>
+              <th>Data</th>
+              <th>Tendencia</th>
+              <th>Historico</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </section>
+
+      <section class="card" id="history-card" hidden>
+        <div class="history-head">
+          <div>
+            <h2 id="history-title">Historico</h2>
+            <p id="history-trend" class="muted"></p>
+          </div>
+          <div class="history-controls">
+            <label for="history-range">Periodo</label>
+            <select id="history-range">
+              <option value="1mo">1 mes</option>
+              <option value="3mo">3 meses</option>
+              <option value="6mo">6 meses</option>
+              <option value="1y">1 ano</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Abertura</th>
+                <th>Min</th>
+                <th>Max</th>
+                <th>Fechamento</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>Fonte: brapi.dev</span>
+    </footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
