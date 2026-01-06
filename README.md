@@ -38,6 +38,12 @@ Acesse: http://localhost:3000
 - Historico por ativo
 - Tendencia (alta/baixa/lateral) baseada no periodo selecionado
 
+## Arquitetura (C4)
+- `docs/arq/C1.md`
+- `docs/arq/C2.md`
+- `docs/arq/C3.md`
+- `docs/arq/C4.md`
+
 ## Notas
 - Alguns ativos exigem plano com permissao especifica (ex.: BDR).
 - Ajuste `BRAPI_TICKER_TYPES` no `.env` se quiser listar outros tipos.
