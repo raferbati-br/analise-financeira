@@ -37,6 +37,7 @@ Acesse: http://localhost:3000
 - Lista de acoes via brapi
 - Historico por ativo
 - Tendencia (alta/baixa/lateral) baseada no periodo selecionado
+- Analises modulares (tendencia, padrao, volume, momento, risco e score)
 
 ## Arquitetura (C4)
 - `docs/arq/C1.md`

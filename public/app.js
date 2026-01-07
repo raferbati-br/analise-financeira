@@ -1,3 +1,9 @@
+import { computeTrend } from './analysis/trend.js';
+import { detectSetups } from './analysis/patterns.js';
+import { detectConfirmations } from './analysis/volume.js';
+import { computeRiskReward } from './analysis/risk.js';
+import { computeScore } from './analysis/score.js';
+
 const form = document.getElementById('quote-form');
 const filterInput = document.getElementById('ticker-filter');
 const tickerSelect = document.getElementById('ticker-select');
@@ -9,19 +15,25 @@ const tbody = document.getElementById('tbody');
 const historyCard = document.getElementById('history-card');
 const historyTitle = document.getElementById('history-title');
 const historyTrend = document.getElementById('history-trend');
+const historySetups = document.getElementById('history-setups');
+const historyConfirmations = document.getElementById('history-confirmations');
+const historyRisk = document.getElementById('history-risk');
+const historyScore = document.getElementById('history-score');
 const historyBody = document.getElementById('history-body');
 const historyRange = document.getElementById('history-range');
 let historySymbol = '';
 const TREND_RANGE = '1mo';
 const TREND_INTERVAL = '1d';
-const TREND_THRESHOLD = 0.02;
-const TREND_MIN_POINTS = 5;
+const SETUP_RANGE = '3mo';
+const SETUP_INTERVAL = '1d';
 
+// Mostra mensagem de status na tela.
 function showStatus(message) {
   statusEl.textContent = message;
   statusCard.hidden = false;
 }
 
+// Limpa a mensagem de status.
 function clearStatus() {
   statusEl.textContent = '';
   statusCard.hidden = true;
@@ -29,6 +41,7 @@ function clearStatus() {
 
 let tickers = [];
 
+// Formata numero com separador local.
 function formatNumber(value) {
   if (!value || value === 'N/A') return '-';
   const num = Number(value);
@@ -36,6 +49,7 @@ function formatNumber(value) {
   return num.toLocaleString('pt-BR');
 }
 
+// Formata preco em pt-BR com 2 casas.
 function formatPrice(value) {
   if (!value || value === 'N/A') return '-';
   const num = Number(value);
@@ -43,6 +57,7 @@ function formatPrice(value) {
   return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+// Renderiza a tabela de cotacoes.
 function renderRows(results) {
   tbody.innerHTML = '';
 
@@ -51,7 +66,7 @@ function renderRows(results) {
     if (!item.ok) {
       row.innerHTML = `
         <td>${item.symbol || '-'}</td>
-        <td colspan="8" class="muted">${item.error}</td>
+        <td colspan="12" class="muted">${item.error}</td>
       `;
       tbody.appendChild(row);
       return;
@@ -70,6 +85,10 @@ function renderRows(results) {
       <td>${formatNumber(item.volume)}</td>
       <td>${dateTime || '-'}</td>
       <td class="trend muted">Calculando...</td>
+      <td class="setups muted">Calculando...</td>
+      <td class="confirmations muted">Calculando...</td>
+      <td class="risk muted">Calculando...</td>
+      <td class="score muted">Calculando...</td>
       <td>
         <button type="button" class="ghost small" data-action="history" data-symbol="${item.symbol}">
           Historico
@@ -82,31 +101,30 @@ function renderRows(results) {
     if (trendCell) {
       updateTrendForSymbol(item.symbol, trendCell);
     }
+
+    const setupCell = row.querySelector('.setups');
+    if (setupCell) {
+      updateSetupsForSymbol(item.symbol, setupCell);
+    }
+
+    const confirmationsCell = row.querySelector('.confirmations');
+    if (confirmationsCell) {
+      updateConfirmationsForSymbol(item.symbol, confirmationsCell);
+    }
+
+    const riskCell = row.querySelector('.risk');
+    if (riskCell) {
+      updateRiskForSymbol(item.symbol, riskCell);
+    }
+
+    const scoreCell = row.querySelector('.score');
+    if (scoreCell) {
+      updateScoreForSymbol(item.symbol, scoreCell);
+    }
   });
 }
 
-function computeTrend(history) {
-  const points = history
-    .map((item) => ({
-      date: item.date,
-      close: Number(item.close ?? item.adjustedClose)
-    }))
-    .filter((item) => Number.isFinite(item.close) && item.close > 0 && Number.isFinite(item.date))
-    .sort((a, b) => a.date - b.date);
-
-  if (points.length < TREND_MIN_POINTS) {
-    return { label: 'Indefinido', change: 0 };
-  }
-
-  const first = points[0].close;
-  const last = points[points.length - 1].close;
-  const change = (last - first) / first;
-
-  if (change > TREND_THRESHOLD) return { label: 'Alta', change };
-  if (change < -TREND_THRESHOLD) return { label: 'Baixa', change };
-  return { label: 'Lateral', change };
-}
-
+// Carrega historico e atualiza tendencia.
 async function updateTrendForSymbol(symbol, cell) {
   if (!symbol || !cell) return;
   cell.textContent = 'Calculando...';
@@ -129,11 +147,119 @@ async function updateTrendForSymbol(symbol, cell) {
   }
 }
 
+// Carrega historico e atualiza setups.
+async function updateSetupsForSymbol(symbol, cell) {
+  if (!symbol || !cell) return;
+  cell.textContent = 'Calculando...';
+  cell.classList.add('muted');
+
+  try {
+    const resp = await fetch(
+      `/api/history?symbol=${encodeURIComponent(symbol)}&range=${encodeURIComponent(SETUP_RANGE)}&interval=${encodeURIComponent(SETUP_INTERVAL)}`
+    );
+    const data = await resp.json();
+    if (!resp.ok || !data.result || !data.result.ok) {
+      cell.textContent = 'Sem setup';
+      return;
+    }
+    const setups = detectSetups(data.result.history || []);
+    cell.textContent = setups.length ? setups.join(' + ') : 'Sem setup';
+    cell.classList.toggle('muted', setups.length === 0);
+  } catch (err) {
+    cell.textContent = 'Sem setup';
+  }
+}
+
+// Carrega historico e atualiza confirmacoes.
+async function updateConfirmationsForSymbol(symbol, cell) {
+  if (!symbol || !cell) return;
+  cell.textContent = 'Calculando...';
+  cell.classList.add('muted');
+
+  try {
+    const resp = await fetch(
+      `/api/history?symbol=${encodeURIComponent(symbol)}&range=${encodeURIComponent(SETUP_RANGE)}&interval=${encodeURIComponent(SETUP_INTERVAL)}`
+    );
+    const data = await resp.json();
+    if (!resp.ok || !data.result || !data.result.ok) {
+      cell.textContent = 'Sem confirmacao';
+      return;
+    }
+    const confirmations = detectConfirmations(data.result.history || []);
+    cell.textContent = confirmations.length ? confirmations.join(' + ') : 'Sem confirmacao';
+    cell.classList.toggle('muted', confirmations.length === 0);
+  } catch (err) {
+    cell.textContent = 'Sem confirmacao';
+  }
+}
+
+// Carrega historico e atualiza risco/retorno.
+async function updateRiskForSymbol(symbol, cell) {
+  if (!symbol || !cell) return;
+  cell.textContent = 'Calculando...';
+  cell.classList.add('muted');
+
+  try {
+    const resp = await fetch(
+      `/api/history?symbol=${encodeURIComponent(symbol)}&range=${encodeURIComponent(SETUP_RANGE)}&interval=${encodeURIComponent(SETUP_INTERVAL)}`
+    );
+    const data = await resp.json();
+    if (!resp.ok || !data.result || !data.result.ok) {
+      cell.textContent = 'Sem calculo';
+      return;
+    }
+    const risk = computeRiskReward(data.result.history || []);
+    if (!risk.ok) {
+      cell.textContent = 'Sem calculo';
+      return;
+    }
+    const verdict = risk.isGood ? 'Compensa' : 'Nao compensa';
+    cell.textContent = `Entrada ${formatPrice(risk.entry)} | Stop ${formatPrice(risk.stop)} | RR ${risk.rr.toFixed(2)} | ${verdict}`;
+    cell.classList.toggle('muted', !risk.isGood);
+  } catch (err) {
+    cell.textContent = 'Sem calculo';
+  }
+}
+
+// Carrega historico e atualiza score.
+async function updateScoreForSymbol(symbol, cell) {
+  if (!symbol || !cell) return;
+  cell.textContent = 'Calculando...';
+  cell.classList.add('muted');
+
+  try {
+    const resp = await fetch(
+      `/api/history?symbol=${encodeURIComponent(symbol)}&range=${encodeURIComponent(SETUP_RANGE)}&interval=${encodeURIComponent(SETUP_INTERVAL)}`
+    );
+    const data = await resp.json();
+    if (!resp.ok || !data.result || !data.result.ok) {
+      cell.textContent = 'Sem score';
+      return;
+    }
+    const score = computeScore(data.result.history || []);
+    cell.textContent = `${score.total}/100`;
+    cell.classList.toggle('muted', score.total < 50);
+  } catch (err) {
+    cell.textContent = 'Sem score';
+  }
+}
+
+// Renderiza historico e resumo.
 function renderHistory(symbol, history) {
   historyTitle.textContent = `Historico - ${symbol}`;
   historyBody.innerHTML = '';
   const trend = computeTrend(history || []);
   historyTrend.textContent = `Tendencia: ${trend.label}`;
+  const setups = detectSetups(history || []);
+  historySetups.textContent = `Setups: ${setups.length ? setups.join(' + ') : 'Sem setup'}`;
+  const confirmations = detectConfirmations(history || []);
+  historyConfirmations.textContent = `Confirmacoes: ${confirmations.length ? confirmations.join(' + ') : 'Sem confirmacao'}`;
+  const risk = computeRiskReward(history || []);
+  historyRisk.textContent = risk.ok
+    ? `Entrada ${formatPrice(risk.entry)} | Stop ${formatPrice(risk.stop)} | Alvo ${formatPrice(risk.target)} | RR ${risk.rr.toFixed(2)} | ${risk.isGood ? 'Compensa' : 'Nao compensa'}`
+    : 'Risco/Retorno: sem calculo';
+  const score = computeScore(history || []);
+  historyScore.textContent = `Score: ${score.total}/100 (T ${score.breakdown.trendScore}, P ${score.breakdown.patternScore}, V ${score.breakdown.volumeScore}, M ${score.breakdown.momentumScore}, RR ${score.breakdown.rrScore})`;
   if (!history || history.length === 0) {
     const row = document.createElement('tr');
     row.innerHTML = '<td colspan="6" class="muted">Sem dados de historico.</td>';
@@ -161,6 +287,7 @@ function renderHistory(symbol, history) {
   historyCard.hidden = false;
 }
 
+// Busca historico do ativo.
 async function loadHistory(symbol) {
   historySymbol = symbol;
   showStatus(`Carregando historico de ${symbol}...`);
@@ -184,6 +311,7 @@ async function loadHistory(symbol) {
   }
 }
 
+// Preenche a lista de tickers.
 function populateOptions(list) {
   tickerSelect.innerHTML = '';
   list.forEach((ticker) => {
@@ -194,12 +322,14 @@ function populateOptions(list) {
   });
 }
 
+// Filtra tickers pela busca.
 function filterTickers(query) {
   const text = query.trim().toUpperCase();
   if (!text) return tickers;
   return tickers.filter((ticker) => ticker.includes(text));
 }
 
+// Carrega tickers do backend.
 async function loadTickers() {
   showStatus('Carregando lista de acoes...');
   try {
@@ -235,6 +365,10 @@ clearButton.addEventListener('click', () => {
   historyCard.hidden = true;
   historySymbol = '';
   historyTrend.textContent = '';
+  historySetups.textContent = '';
+  historyConfirmations.textContent = '';
+  historyRisk.textContent = '';
+  historyScore.textContent = '';
 });
 
 tbody.addEventListener('click', (event) => {

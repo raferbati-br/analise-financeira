@@ -26,7 +26,7 @@ body {
 }
 
 .wrap {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 48px 20px 24px;
 }
@@ -167,7 +167,8 @@ button:hover {
 }
 
 .table-wrap {
-  overflow-x: auto;
+  width: 100%;
+  overflow-x: hidden;
   background: var(--card);
   border-radius: 18px;
   border: 1px solid var(--line);
@@ -178,15 +179,16 @@ button:hover {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 680px;
+  table-layout: fixed;
 }
 
 th,
 td {
-  padding: 14px 16px;
+  padding: 10px 12px;
   text-align: left;
   border-bottom: 1px solid var(--line);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  word-break: break-word;
 }
 
 th {
