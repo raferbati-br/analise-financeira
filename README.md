@@ -39,6 +39,10 @@ Acesse: http://localhost:3000
 - Analises modulares (tendencia, padrao, volume, momento, risco e score)
 - Cache local (TTL 24h) para reduzir chamadas
 
+## Estrutura de Pastas
+- `backend/`: servidor Node.js e integracao com brapi
+- `frontend/`: app web estatico (HTML/CSS/JS)
+
 ## Arquitetura (C4)
 - `docs/arq/C1.md`
 - `docs/arq/C2.md`
