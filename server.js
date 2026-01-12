@@ -158,7 +158,7 @@ async function fetchAvailableTickers() {
   }
   try {
     const client = getBrapiClient();
-    const data = await client.quote.list({ limit: 10000 });
+    const data = await client.quote.list({ limit: 10000, type: 'stock' });
     const list = Array.isArray(data?.stocks) ? data.stocks : [];
     const allowedTypes = BRAPI_TICKER_TYPES.split(',')
       .map((item) => item.trim().toLowerCase())

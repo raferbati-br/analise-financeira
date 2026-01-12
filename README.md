@@ -33,11 +33,11 @@ npm run dev
 Acesse: http://localhost:3000
 
 ## Funcionalidades
-- Consulta de cotacoes
-- Lista de acoes via brapi
-- Historico por ativo
-- Tendencia (alta/baixa/lateral) baseada no periodo selecionado
+- Resumo com sinal (comprar/vender/ficar fora)
+- Consulta geral com tabela paginada e filtro por ticker
+- Tendencia (alta/baixa/lateral) e score por confluencia
 - Analises modulares (tendencia, padrao, volume, momento, risco e score)
+- Cache local (TTL 24h) para reduzir chamadas
 
 ## Arquitetura (C4)
 - `docs/arq/C1.md`
