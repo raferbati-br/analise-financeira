@@ -24,14 +24,13 @@ export function renderRows(tbody, symbols, analysisCache) {
       row.innerHTML = `
         <td class="logo-cell">${renderLogoCell(symbol, null)}</td>
         <td>${symbol || '-'}</td>
-        <td colspan="11" class="muted">Sem dados</td>
+        <td colspan="10" class="muted">Sem dados</td>
       `;
       tbody.appendChild(row);
       return;
     }
 
     const quote = analysis.quote || {};
-    const dateTime = quote.timestamp ? new Date(quote.timestamp).toLocaleString('pt-BR') : '-';
     const trendLabel = analysis.trend?.label || 'Indefinido';
     const setups = analysis.setups || [];
     const confirmations = analysis.confirmations || [];
@@ -41,15 +40,17 @@ export function renderRows(tbody, symbols, analysisCache) {
     const logo = analysis.logo || null;
 
     const riskBadges = risk.ok && levels.ok
-      ? `<div class="badge-row">` +
+      ? `<details class="rr-details">` +
+        `<summary class="rr-summary">${formatTextBadge(`RR ${risk.rr.toFixed(2)}`)}</summary>` +
+        `<div class="badge-row rr-content">` +
         `${formatBadge('Entrada', risk.entry)}` +
         `${formatBadge('Stop', risk.stop)}` +
-        `${formatTextBadge(`RR ${risk.rr.toFixed(2)}`)}` +
         `${formatTextBadge(risk.isGood ? 'Compensa' : 'Nao compensa')}` +
         `${formatBadge('Rompe acima', levels.breakoutHigh)}` +
         `${formatBadge('Rompe abaixo', levels.breakoutLow)}` +
         `${formatBadge('Invalidacao', levels.invalidation)}` +
-        `</div>`
+        `</div>` +
+        `</details>`
       : `<span class="badge muted">Sem calculo</span>`;
 
     row.innerHTML = `
@@ -60,7 +61,6 @@ export function renderRows(tbody, symbols, analysisCache) {
       <td>${formatPrice(quote.low)}</td>
       <td>${formatPrice(quote.high)}</td>
       <td>${formatNumber(quote.volume)}</td>
-      <td>${dateTime}</td>
       <td><div class="badge-row">${formatBadges([trendLabel], 'Indefinido')}</div></td>
       <td><div class="badge-row">${formatBadges(setups, 'Sem setup')}</div></td>
       <td><div class="badge-row">${formatBadges(confirmations, 'Sem confirmacao')}</div></td>

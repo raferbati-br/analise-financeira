@@ -19,6 +19,7 @@ const tableFilter = document.getElementById('table-filter');
 const pagePrev = document.getElementById('page-prev');
 const pageNext = document.getElementById('page-next');
 const pageInfo = document.getElementById('page-info');
+const tableUpdated = document.getElementById('table-updated');
 const tabs = document.querySelectorAll('[data-tab]');
 const tabSummary = document.getElementById('tab-summary');
 const tabGeneral = document.getElementById('tab-general');
@@ -75,6 +76,19 @@ function renderTable(page) {
   state.currentPage = result.page;
 }
 
+function renderLastUpdated() {
+  if (!tableUpdated) return;
+  let latest = null;
+  state.analysisCache.forEach((data) => {
+    if (!data || !data.ok) return;
+    const ts = data.quote?.timestamp;
+    if (typeof ts !== 'number') return;
+    if (!latest || ts > latest) latest = ts;
+  });
+  const label = latest ? new Date(latest).toLocaleString('pt-BR') : '-';
+  tableUpdated.textContent = `Atualizado em: ${label}`;
+}
+
 async function loadTickers() {
   showStatus(statusEl, statusCard, 'Carregando lista de acoes...');
   try {
@@ -102,6 +116,7 @@ async function loadSummaryAndTable() {
   try {
     await buildAnalysisForTickers(state.tickers, SETUP_RANGE, SETUP_INTERVAL);
     renderSummary();
+    renderLastUpdated();
     savePersistedCache();
     renderTable(1);
     if (tableWrap) {
@@ -118,6 +133,7 @@ async function loadSummaryAndTable() {
 function initFromCache(cache) {
   applyPersistedCache(cache);
   renderSummary();
+  renderLastUpdated();
   renderTable(1);
   if (tableWrap) {
     tableWrap.hidden = false;
