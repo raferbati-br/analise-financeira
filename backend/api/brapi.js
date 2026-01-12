@@ -83,11 +83,13 @@ async function fetchHistory(symbol, range, interval) {
       ? result.historicalDataPrice
       : [];
     const logo = result?.logourl || result?.logoUrl || null;
+    const name = result?.longName || result?.shortName || result?.name || null;
     return {
       symbol: result?.symbol || normalized,
       ok: true,
       history,
-      logo
+      logo,
+      name
     };
   } catch (err) {
     return { symbol: normalized, ok: false, error: formatBrapiError(err) };

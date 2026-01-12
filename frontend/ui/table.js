@@ -40,12 +40,16 @@ export function renderRows(tbody, symbols, analysisCache) {
 
   symbols.forEach((symbol) => {
     const row = document.createElement('tr');
+    row.classList.add('table-row');
+    row.dataset.symbol = symbol || '';
+    row.tabIndex = 0;
+    row.setAttribute('role', 'button');
     const analysis = analysisCache.get(symbol);
     if (!analysis || !analysis.ok) {
       row.innerHTML = `
         <td class="logo-cell">${renderLogoCell(symbol, null)}</td>
         <td>${symbol || '-'}</td>
-        <td colspan="8" class="muted">Sem dados</td>
+        <td colspan="4" class="muted">Sem dados</td>
       `;
       tbody.appendChild(row);
       return;
@@ -53,55 +57,8 @@ export function renderRows(tbody, symbols, analysisCache) {
 
     const quote = analysis.quote || {};
     const variation = getVariation(quote);
-    const trendLabel = analysis.trend?.label || 'Indefinido';
-    const setups = analysis.setups || [];
-    const confirmations = analysis.confirmations || [];
     const score = analysis.score || { total: 0 };
-    const risk = analysis.risk || { ok: false };
-    const levels = analysis.levels || { ok: false };
     const logo = analysis.logo || null;
-
-    const riskBadges = risk.ok && levels.ok
-      ? `<details class="rr-details">` +
-        `<summary class="rr-summary"><span class="summary-text">RR ${risk.rr.toFixed(2)}</span></summary>` +
-        `<div class="meta-list rr-content">` +
-        `<div class="meta-item"><strong>Entrada</strong> ${formatPrice(risk.entry)}</div>` +
-        `<div class="meta-item"><strong>Stop</strong> ${formatPrice(risk.stop)}</div>` +
-        `<div class="meta-item"><strong>R/R</strong> ${risk.isGood ? 'Compensa' : 'Nao compensa'}</div>` +
-        `<div class="meta-item"><strong>Rompe acima</strong> ${formatPrice(levels.breakoutHigh)}</div>` +
-        `<div class="meta-item"><strong>Rompe abaixo</strong> ${formatPrice(levels.breakoutLow)}</div>` +
-        `<div class="meta-item"><strong>Invalidacao</strong> ${formatPrice(levels.invalidation)}</div>` +
-        `</div>` +
-        `</details>`
-      : `<span class="muted">-</span>`;
-
-    const setupBadges = setups.length > 0
-      ? setups.slice(1).map((item) => `<div class="meta-item">${item}</div>`).join('')
-      : '';
-    const setupsCell = setups.length > 1
-      ? `<details class="setup-details">` +
-        `<summary class="setup-summary">` +
-        `<span class="summary-text">${setups[0]}</span>` +
-        `</summary>` +
-        `<div class="meta-list setup-content">` +
-        `${setupBadges}` +
-        `</div>` +
-        `</details>`
-      : `<span class="${setups.length ? 'summary-text' : 'muted'}">${setups[0] || '-'}</span>`;
-
-    const confirmationBadges = confirmations.length > 0
-      ? confirmations.slice(1).map((item) => `<div class="meta-item">${item}</div>`).join('')
-      : '';
-    const confirmationsCell = confirmations.length > 1
-      ? `<details class="confirmation-details">` +
-        `<summary class="confirmation-summary">` +
-        `<span class="summary-text">${confirmations[0]}</span>` +
-        `</summary>` +
-        `<div class="meta-list confirmation-content">` +
-        `${confirmationBadges}` +
-        `</div>` +
-        `</details>`
-      : `<span class="${confirmations.length ? 'summary-text' : 'muted'}">${confirmations[0] || '-'}</span>`;
 
     row.innerHTML = `
       <td class="logo-cell">${renderLogoCell(symbol, logo)}</td>
@@ -109,10 +66,6 @@ export function renderRows(tbody, symbols, analysisCache) {
       <td>${formatPrice(quote.close)}</td>
       <td>${renderVariation(variation)}</td>
       <td>${formatNumber(quote.volume)}</td>
-      <td><span class="summary-text">${trendLabel}</span></td>
-      <td>${setupsCell}</td>
-      <td>${confirmationsCell}</td>
-      <td>${riskBadges}</td>
       <td><span class="summary-text">${score.total}%</span></td>
     `;
     tbody.appendChild(row);
@@ -133,19 +86,6 @@ function getScoreValue(symbol, analysisCache) {
   return total;
 }
 
-function getTrendRank(label) {
-  switch (label) {
-    case 'Alta':
-      return 3;
-    case 'Lateral':
-      return 2;
-    case 'Baixa':
-      return 1;
-    default:
-      return 0;
-  }
-}
-
 function getSortValue(symbol, analysisCache, sortKey) {
   const data = analysisCache.get(symbol);
   if (!data || !data.ok) return null;
@@ -160,14 +100,6 @@ function getSortValue(symbol, analysisCache, sortKey) {
       return getVariation(quote);
     case 'volume':
       return typeof quote.volume === 'number' ? quote.volume : null;
-    case 'tendencia':
-      return getTrendRank(data.trend?.label || '');
-    case 'setups':
-      return (data.setups && data.setups[0]) || '';
-    case 'confirmacoes':
-      return (data.confirmations && data.confirmations[0]) || '';
-    case 'risco':
-      return data.risk?.ok ? data.risk.rr : null;
     case 'score':
       return getScoreValue(symbol, analysisCache);
     default:

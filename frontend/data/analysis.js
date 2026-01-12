@@ -2,6 +2,7 @@ import { computeTrend } from '../analysis/trend.js';
 import { detectSetups } from '../analysis/patterns.js';
 import { detectConfirmations } from '../analysis/volume.js';
 import { computeLevels, computeRiskReward } from '../analysis/risk.js';
+import { computeMomentum } from '../analysis/momentum.js';
 import { computeScore } from '../analysis/score.js';
 import { state } from '../state.js';
 import { fetchHistoryCached } from './history.js';
@@ -16,6 +17,7 @@ export async function buildAnalysisForTickers(tickers, range, interval) {
       }
       const history = data.history || [];
       const logo = data.logo || null;
+      const name = data.name || null;
       const last = history[history.length - 1] || {};
       const quote = {
         open: last.open,
@@ -31,6 +33,7 @@ export async function buildAnalysisForTickers(tickers, range, interval) {
       const confirmations = detectConfirmations(history);
       const risk = computeRiskReward(history);
       const levels = computeLevels(history);
+      const momentum = computeMomentum(history);
       const rr = risk.ok ? risk.rr : 0;
       state.analysisCache.set(symbol, {
         ok: true,
@@ -38,11 +41,13 @@ export async function buildAnalysisForTickers(tickers, range, interval) {
         trend,
         setups,
         confirmations,
+        momentum,
         risk,
         levels,
         rr,
         quote,
-        logo
+        logo,
+        name
       });
     })
   );

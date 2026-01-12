@@ -12,7 +12,7 @@
         <p class="eyebrow">Leitura rapida do mercado</p>
         <h1>Analise tendencias, setups e risco em segundos</h1>
         <p class="sub">
-          Resumo geral com sinais e consulta completa com score, confirmacoes e niveis.
+          Resumo geral com sinais e consulta rapida com score detalhado por linha.
         </p>
       </header>
 
@@ -81,18 +81,6 @@
                   <button type="button" class="sort-button" data-sort="volume">Volume</button>
                 </th>
                 <th>
-                  <button type="button" class="sort-button" data-sort="tendencia">Tendencia</button>
-                </th>
-                <th>
-                  <button type="button" class="sort-button" data-sort="setups">Setups</button>
-                </th>
-                <th>
-                  <button type="button" class="sort-button" data-sort="confirmacoes">Confirmacoes</button>
-                </th>
-                <th>
-                  <button type="button" class="sort-button" data-sort="risco">Risco/Retorno</button>
-                </th>
-                <th>
                   <button type="button" class="sort-button" data-sort="score">Score</button>
                 </th>
               </tr>
@@ -104,6 +92,21 @@
       </section>
 
     </main>
+
+    <div class="score-panel" id="score-panel" hidden aria-hidden="true">
+      <div class="score-panel-backdrop" data-close="panel"></div>
+      <div class="score-panel-card" role="dialog" aria-modal="true" aria-labelledby="score-panel-title">
+        <div class="score-panel-header">
+          <div>
+            <p class="eyebrow">Score detalhado</p>
+            <h2 id="score-panel-title">Detalhes</h2>
+            <p class="muted">Parametros usados no calculo do score.</p>
+          </div>
+          <button type="button" class="ghost small" id="score-panel-close">Fechar</button>
+        </div>
+        <div class="score-panel-body" id="score-panel-body"></div>
+      </div>
+    </div>
 
     <footer class="foot reveal" style="--delay: 320ms;">
       <span>Fonte: brapi.dev</span>

@@ -3,7 +3,7 @@ import { loadPersistedCache, applyPersistedCache, savePersistedCache } from './d
 import { buildAnalysisForTickers } from './data/analysis.js';
 import { renderSummaryFromAnalysis, renderSummaryLoading } from './ui/summary.js';
 import { renderTablePage } from './ui/table.js';
-import { debounce } from './ui/format.js';
+import { debounce, formatNumber, formatPrice } from './ui/format.js';
 import { showStatus, clearStatus } from './ui/status.js';
 import { initTabs } from './ui/tabs.js';
 
@@ -20,6 +20,10 @@ const pagePrev = document.getElementById('page-prev');
 const pageNext = document.getElementById('page-next');
 const pageInfo = document.getElementById('page-info');
 const tableUpdated = document.getElementById('table-updated');
+const scorePanel = document.getElementById('score-panel');
+const scorePanelBody = document.getElementById('score-panel-body');
+const scorePanelTitle = document.getElementById('score-panel-title');
+const scorePanelClose = document.getElementById('score-panel-close');
 const tabs = document.querySelectorAll('[data-tab]');
 const tabSummary = document.getElementById('tab-summary');
 const tabGeneral = document.getElementById('tab-general');
@@ -38,6 +42,143 @@ if (summaryLoading) {
 }
 if (tableWrap) {
   tableWrap.hidden = true;
+}
+
+function formatPercentValue(value) {
+  if (value === null || value === undefined) return '-';
+  const num = Number(value);
+  if (Number.isNaN(num)) return '-';
+  return `${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
+}
+
+function getVariation(quote) {
+  const open = quote?.open;
+  const close = quote?.close;
+  if (!open || close === undefined || close === null) return null;
+  return ((close - open) / open) * 100;
+}
+
+function renderVariation(value) {
+  if (value === null || value === undefined) {
+    return '<span class="variation neutral">-</span>';
+  }
+  const num = Number(value);
+  if (Number.isNaN(num)) {
+    return '<span class="variation neutral">-</span>';
+  }
+  const direction = num >= 0 ? 'up' : 'down';
+  const arrow = num >= 0 ? '^' : 'v';
+  return `<span class="variation ${direction}">${arrow} ${formatPercentValue(num)}</span>`;
+}
+
+function renderTags(items) {
+  if (!items || !items.length) {
+    return '<span class="muted">-</span>';
+  }
+  return `<div class="tag-list">${items.map((item) => `<span class="tag">${item}</span>`).join('')}</div>`;
+}
+
+function renderScorePanel(symbol) {
+  if (!scorePanelBody || !scorePanelTitle) return;
+  const data = state.analysisCache.get(symbol);
+  if (!data || !data.ok) {
+    scorePanelTitle.textContent = `${symbol || '-'} - Sem dados`;
+    scorePanelBody.innerHTML = '<p class="muted">Sem dados suficientes para detalhar o score.</p>';
+    return;
+  }
+
+  const score = data.score || { total: 0, breakdown: {} };
+  const breakdown = score.breakdown || {};
+  const trendLabel = data.trend?.label || 'Indefinido';
+  const setups = data.setups || [];
+  const confirmations = data.confirmations || [];
+  const momentum = data.momentum;
+  const name = data.name || '-';
+  const risk = data.risk || { ok: false };
+  const levels = data.levels || { ok: false };
+  const quote = data.quote || {};
+  const variation = getVariation(quote);
+  const rrValue = risk.ok ? risk.rr.toFixed(2) : '-';
+  const rrLabel = risk.ok ? (risk.isGood ? 'Compensa' : 'Nao compensa') : '-';
+  const momentumLabel = momentum === null ? '-' : formatPercentValue(momentum * 100);
+
+  scorePanelTitle.textContent = `${symbol} - ${name}`;
+  scorePanelBody.innerHTML = `
+    <div class="score-panel-summary">
+      <div class="score-panel-score">
+        <span class="score-panel-score-label">Score</span>
+        <span class="score-panel-score-value">${score.total}%</span>
+      </div>
+      <div class="score-panel-meta">
+        <div><span class="muted">Ultimo</span> ${formatPrice(quote.close)}</div>
+        <div><span class="muted">Variacao</span> ${renderVariation(variation)}</div>
+        <div><span class="muted">Volume</span> ${formatNumber(quote.volume)}</div>
+      </div>
+    </div>
+    <div class="score-panel-grid">
+      <div class="score-panel-item">
+        <h3>Tendencia</h3>
+        <p class="score-panel-value">${trendLabel}</p>
+        <p class="muted">Pontos: ${breakdown.trendScore ?? 0}</p>
+      </div>
+      <div class="score-panel-item">
+        <h3>Setups</h3>
+        <p class="score-panel-value">${setups.length ? `${setups.length} sinal(ais)` : 'Nenhum'}</p>
+        <p class="muted">Pontos: ${breakdown.patternScore ?? 0}</p>
+      </div>
+      <div class="score-panel-item">
+        <h3>Confirmacoes</h3>
+        <p class="score-panel-value">${confirmations.length ? `${confirmations.length} sinal(ais)` : 'Nenhuma'}</p>
+        <p class="muted">Pontos: ${breakdown.volumeScore ?? 0}</p>
+      </div>
+      <div class="score-panel-item">
+        <h3>Momento</h3>
+        <p class="score-panel-value">${momentumLabel}</p>
+        <p class="muted">Pontos: ${breakdown.momentumScore ?? 0}</p>
+      </div>
+      <div class="score-panel-item">
+        <h3>Risco/Retorno</h3>
+        <p class="score-panel-value">RR ${rrValue}</p>
+        <p class="muted">Pontos: ${breakdown.rrScore ?? 0}</p>
+      </div>
+    </div>
+    <div class="score-panel-section">
+      <h3>Setups encontrados</h3>
+      ${renderTags(setups)}
+    </div>
+    <div class="score-panel-section">
+      <h3>Confirmacoes de volume</h3>
+      ${renderTags(confirmations)}
+    </div>
+    <div class="score-panel-section">
+      <h3>Risco/Retorno detalhado</h3>
+      <div class="score-panel-risk">
+        <div><span class="muted">Entrada</span> ${formatPrice(risk.entry)}</div>
+        <div><span class="muted">Stop</span> ${formatPrice(risk.stop)}</div>
+        <div><span class="muted">Alvo</span> ${formatPrice(risk.target)}</div>
+        <div><span class="muted">RR</span> ${rrValue}</div>
+        <div><span class="muted">Classificacao</span> ${rrLabel}</div>
+        <div><span class="muted">Rompe acima</span> ${formatPrice(levels.breakoutHigh)}</div>
+        <div><span class="muted">Rompe abaixo</span> ${formatPrice(levels.breakoutLow)}</div>
+        <div><span class="muted">Invalidacao</span> ${formatPrice(levels.invalidation)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function openScorePanel(symbol) {
+  if (!scorePanel) return;
+  renderScorePanel(symbol);
+  scorePanel.hidden = false;
+  scorePanel.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('panel-open');
+}
+
+function closeScorePanel() {
+  if (!scorePanel) return;
+  scorePanel.hidden = true;
+  scorePanel.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('panel-open');
 }
 
 function enableGeneralTab() {
@@ -196,11 +337,83 @@ function initFilter() {
   tableFilter.addEventListener('input', applyFilter);
 }
 
+function initScorePanel() {
+  if (scorePanelClose) {
+    scorePanelClose.addEventListener('click', closeScorePanel);
+  }
+  if (scorePanel) {
+    scorePanel.addEventListener('click', (event) => {
+      if (event.target instanceof Element && event.target.matches('[data-close="panel"]')) {
+        closeScorePanel();
+      }
+    });
+  }
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && scorePanel && !scorePanel.hidden) {
+      closeScorePanel();
+    }
+  });
+}
+
+function initRowSelection() {
+  if (!tbody) return;
+  tbody.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const row = target.closest('tr[data-symbol]');
+    if (!row) return;
+    const symbol = row.dataset.symbol;
+    if (symbol) openScorePanel(symbol);
+  });
+  tbody.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const row = target.closest('tr[data-symbol]');
+    if (!row) return;
+    const symbol = row.dataset.symbol;
+    if (symbol) {
+      event.preventDefault();
+      openScorePanel(symbol);
+    }
+  });
+}
+
+function initSummarySelection() {
+  const summaryLists = [summaryBuy, summarySell, summaryHold].filter(Boolean);
+  if (!summaryLists.length) return;
+  summaryLists.forEach((list) => {
+    list.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const item = target.closest('li[data-symbol]');
+      if (!item) return;
+      const symbol = item.dataset.symbol;
+      if (symbol) openScorePanel(symbol);
+    });
+    list.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const item = target.closest('li[data-symbol]');
+      if (!item) return;
+      const symbol = item.dataset.symbol;
+      if (symbol) {
+        event.preventDefault();
+        openScorePanel(symbol);
+      }
+    });
+  });
+}
+
 function initApp() {
   initTabs(tabs, tabSummary, tabGeneral);
   initPagination();
   initSorting();
   initFilter();
+  initScorePanel();
+  initRowSelection();
+  initSummarySelection();
 
   const cached = loadPersistedCache();
   if (cached) {

@@ -14,7 +14,7 @@ export function renderSummaryList(listEl, items, emptyLabel) {
   listEl.innerHTML = items
     .map(
       (item) =>
-        `<li class="summary-item">` +
+        `<li class="summary-item" data-symbol="${item.symbol || ''}" role="button" tabindex="0">` +
         `<div class="summary-header">` +
         `${renderLogo(item)}` +
         `<span class="summary-ticker">${item.symbol}</span>` +

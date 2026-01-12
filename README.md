@@ -34,8 +34,10 @@ Acesse: http://localhost:3000
 
 ## Funcionalidades
 - Resumo com sinal (comprar/vender/ficar fora) e logos
-- Consulta geral com tabela paginada, filtro por ticker e ordenacao por ticker/score
+- Consulta geral com tabela paginada (logo, ticker, ultimo, variacao, volume, score)
+- Clique na linha do resumo ou da tabela abre painel com detalhe do score
 - Tendencia (alta/baixa/lateral) e score por confluencia
+- Painel do score detalha tendencia, setups, confirmacoes, momento e risco/retorno
 - Analises modulares (tendencia, padrao, volume, momento, risco e score)
 - Cache local (TTL 24h) para reduzir chamadas
 
