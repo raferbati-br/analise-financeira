@@ -15,6 +15,7 @@ export async function buildAnalysisForTickers(tickers, range, interval) {
         return;
       }
       const history = data.history || [];
+      const logo = data.logo || null;
       const last = history[history.length - 1] || {};
       const quote = {
         open: last.open,
@@ -40,7 +41,8 @@ export async function buildAnalysisForTickers(tickers, range, interval) {
         risk,
         levels,
         rr,
-        quote
+        quote,
+        logo
       });
     })
   );

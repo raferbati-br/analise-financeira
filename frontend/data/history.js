@@ -14,7 +14,7 @@ export async function fetchHistoryCached(symbol, range, interval) {
       if (!resp.ok || !data.result || !data.result.ok) {
         return { ok: false, error: data?.result?.error || data?.error || 'Falha' };
       }
-      return { ok: true, history: data.result.history || [] };
+      return { ok: true, history: data.result.history || [], logo: data.result.logo || null };
     } catch (err) {
       return { ok: false, error: 'Erro de rede' };
     }

@@ -23,6 +23,7 @@ const tabs = document.querySelectorAll('[data-tab]');
 const tabSummary = document.getElementById('tab-summary');
 const tabGeneral = document.getElementById('tab-general');
 const generalTabButton = document.querySelector('[data-tab="general"]');
+const sortButtons = document.querySelectorAll('[data-sort]');
 
 const SETUP_RANGE = '3mo';
 const SETUP_INTERVAL = '1d';
@@ -67,7 +68,9 @@ function renderTable(page) {
     state.analysisCache,
     PAGE_SIZE,
     page,
-    state.currentFilter
+    state.currentFilter,
+    state.sortKey,
+    state.sortDir
   );
   state.currentPage = result.page;
 }
@@ -135,6 +138,39 @@ function initPagination() {
   }
 }
 
+function updateSortButtons() {
+  sortButtons.forEach((button) => {
+    const key = button.dataset.sort;
+    const active = key === state.sortKey;
+    if (active) {
+      button.dataset.dir = state.sortDir;
+      button.setAttribute('aria-sort', state.sortDir === 'asc' ? 'ascending' : 'descending');
+    } else {
+      button.removeAttribute('data-dir');
+      button.removeAttribute('aria-sort');
+    }
+  });
+}
+
+function initSorting() {
+  if (!sortButtons.length) return;
+  updateSortButtons();
+  sortButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const key = button.dataset.sort;
+      if (!key) return;
+      if (state.sortKey === key) {
+        state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        state.sortKey = key;
+        state.sortDir = 'asc';
+      }
+      updateSortButtons();
+      renderTable(1);
+    });
+  });
+}
+
 function initFilter() {
   if (!tableFilter) return;
   const applyFilter = debounce(() => {
@@ -147,6 +183,7 @@ function initFilter() {
 function initApp() {
   initTabs(tabs, tabSummary, tabGeneral);
   initPagination();
+  initSorting();
   initFilter();
 
   const cached = loadPersistedCache();

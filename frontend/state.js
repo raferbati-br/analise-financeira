@@ -3,5 +3,7 @@ export const state = {
   analysisCache: new Map(),
   historyCache: new Map(),
   currentPage: 1,
-  currentFilter: ''
+  currentFilter: '',
+  sortKey: 'ticker',
+  sortDir: 'asc'
 };

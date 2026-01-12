@@ -82,10 +82,12 @@ async function fetchHistory(symbol, range, interval) {
     const history = Array.isArray(result?.historicalDataPrice)
       ? result.historicalDataPrice
       : [];
+    const logo = result?.logourl || result?.logoUrl || null;
     return {
       symbol: result?.symbol || normalized,
       ok: true,
-      history
+      history,
+      logo
     };
   } catch (err) {
     return { symbol: normalized, ok: false, error: formatBrapiError(err) };

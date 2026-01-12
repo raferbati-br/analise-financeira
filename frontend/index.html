@@ -3,17 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Consulta Rapida de Acoes</title>
+    <title>Radar de Acoes - Analise Rapida</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <main class="wrap">
       <header class="hero reveal" style="--delay: 80ms;">
-        <p class="eyebrow">Mercado em tempo quase real</p>
-        <h1>Precos de acoes, sem rodeio</h1>
+        <p class="eyebrow">Leitura rapida do mercado</p>
+        <h1>Analise tendencias, setups e risco em segundos</h1>
         <p class="sub">
-          Digite os tickers separados por virgula para consultar a ultima cotacao
-          disponivel.
+          Resumo geral com sinais e consulta completa com score, confirmacoes e niveis.
         </p>
       </header>
 
@@ -67,7 +66,10 @@
           <table>
             <thead>
               <tr>
-                <th>Ticker</th>
+                <th>Logo</th>
+                <th>
+                  <button type="button" class="sort-button" data-sort="ticker">Ticker</button>
+                </th>
                 <th>Ultimo</th>
                 <th>Abertura</th>
                 <th>Min</th>
@@ -78,7 +80,9 @@
                 <th>Setups</th>
                 <th>Confirmacoes</th>
                 <th>Risco/Retorno</th>
-              <th>Score</th>
+                <th>
+                  <button type="button" class="sort-button" data-sort="score">Score</button>
+                </th>
               </tr>
             </thead>
             <tbody id="tbody"></tbody>

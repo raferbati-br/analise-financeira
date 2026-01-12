@@ -33,8 +33,8 @@ npm run dev
 Acesse: http://localhost:3000
 
 ## Funcionalidades
-- Resumo com sinal (comprar/vender/ficar fora)
-- Consulta geral com tabela paginada e filtro por ticker
+- Resumo com sinal (comprar/vender/ficar fora) e logos
+- Consulta geral com tabela paginada, filtro por ticker e ordenacao por ticker/score
 - Tendencia (alta/baixa/lateral) e score por confluencia
 - Analises modulares (tendencia, padrao, volume, momento, risco e score)
 - Cache local (TTL 24h) para reduzir chamadas
