@@ -1,5 +1,3 @@
-import { formatTextBadge } from './format.js';
-
 function renderLogo(item) {
   if (item.logo) {
     return `<img class="summary-logo" src="${item.logo}" alt="Logo ${item.symbol}" loading="lazy" />`;
@@ -21,10 +19,10 @@ export function renderSummaryList(listEl, items, emptyLabel) {
         `${renderLogo(item)}` +
         `<span class="summary-ticker">${item.symbol}</span>` +
         `</div>` +
-        `<div class="badge-row">` +
-        `${formatTextBadge(`${item.score.total}%`)}` +
-        `${formatTextBadge(item.trend.label)}` +
-        `${formatTextBadge(`RR ${item.rr.toFixed(2)}`)}` +
+        `<div class="summary-metrics">` +
+        `<span class="summary-metric"><strong>Score</strong> ${item.score.total}%</span>` +
+        `<span class="summary-metric"><strong>Tendencia</strong> ${item.trend.label}</span>` +
+        `<span class="summary-metric"><strong>RR</strong> ${item.rr.toFixed(2)}</span>` +
         `</div>` +
         `</li>`
     )

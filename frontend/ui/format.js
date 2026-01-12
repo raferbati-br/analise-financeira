@@ -1,7 +1,24 @@
 export function formatNumber(value) {
-  if (!value || value === 'N/A') return '-';
+  if (value === null || value === undefined || value === 'N/A') return '-';
   const num = Number(value);
   if (Number.isNaN(num)) return value;
+  const abs = Math.abs(num);
+  if (abs >= 1_000_000) {
+    const scaled = num / 1_000_000;
+    const text = scaled.toLocaleString('pt-BR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1
+    });
+    return `${text}M`;
+  }
+  if (abs >= 1_000) {
+    const scaled = num / 1_000;
+    const text = scaled.toLocaleString('pt-BR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1
+    });
+    return `${text}K`;
+  }
   return num.toLocaleString('pt-BR');
 }
 
@@ -10,21 +27,6 @@ export function formatPrice(value) {
   const num = Number(value);
   if (Number.isNaN(num)) return value;
   return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-export function formatBadge(label, value) {
-  return `<span class="badge"><strong>${label}</strong> ${formatPrice(value)}</span>`;
-}
-
-export function formatTextBadge(text) {
-  return `<span class="badge">${text}</span>`;
-}
-
-export function formatBadges(items, emptyLabel) {
-  if (!items || items.length === 0) {
-    return `<span class="badge muted">${emptyLabel}</span>`;
-  }
-  return items.map((item) => `<span class="badge">${item}</span>`).join('');
 }
 
 export function debounce(fn, waitMs) {

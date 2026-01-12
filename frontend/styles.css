@@ -235,29 +235,18 @@ button:disabled {
   }
 }
 
-.badge-row {
+.summary-metrics {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: #fff8f2;
-  font-size: 0.75rem;
+.summary-metric strong {
+  font-weight: 600;
   color: var(--title);
-  white-space: nowrap;
-}
-
-.badge.muted {
-  color: var(--muted);
-  border-style: dashed;
 }
 
 .summary-head {
@@ -321,7 +310,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border-radius: 12px;
   border: 1px solid var(--line);
   background: #fffdf9;
@@ -432,12 +421,13 @@ table {
 
 th,
 td {
-  padding: 10px 12px;
-  text-align: left;
+  padding: 6px 8px;
+  text-align: center;
   border-bottom: 1px solid var(--line);
   font-size: 0.85rem;
   word-break: normal;
   overflow-wrap: normal;
+  vertical-align: middle;
 }
 
 th {
@@ -449,6 +439,26 @@ th {
 
 td {
   color: var(--ink-soft);
+}
+
+.variation {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.variation.up {
+  color: #2b7a57;
+}
+
+.variation.down {
+  color: #b64a4a;
+}
+
+.variation.neutral {
+  color: var(--muted);
+  font-weight: 500;
 }
 
 .sort-button {
@@ -464,18 +474,19 @@ td {
 }
 
 .sort-button::after {
-  content: '';
+  content: '\2191\2193';
+  letter-spacing: -0.05em;
+  font-size: 0.75rem;
+  color: var(--muted);
 }
 
 .sort-button[data-dir='asc']::after {
-  content: '^';
-  font-size: 0.7rem;
+  content: '\2191';
   color: var(--accent);
 }
 
 .sort-button[data-dir='desc']::after {
-  content: 'v';
-  font-size: 0.7rem;
+  content: '\2193';
   color: var(--accent);
 }
 
@@ -504,9 +515,23 @@ td {
   display: none;
 }
 
-.rr-summary .badge {
-  border-color: rgba(226, 74, 43, 0.4);
-  background: var(--accent-soft);
+.summary-text {
+  font-weight: 400;
+  color: var(--title);
+}
+
+.meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  text-align: left;
+}
+
+.meta-item strong {
+  font-weight: 600;
   color: var(--title);
 }
 
@@ -521,8 +546,68 @@ td {
   content: '-';
 }
 
-.rr-details[open] .rr-summary .badge {
-  box-shadow: 0 6px 12px rgba(226, 74, 43, 0.18);
+.rr-details[open] .rr-summary .summary-text {
+  color: var(--accent);
+}
+
+.setup-details {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setup-summary {
+  list-style: none;
+  cursor: pointer;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.setup-summary::-webkit-details-marker {
+  display: none;
+}
+
+.setup-summary::after {
+  content: '+';
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.setup-details[open] .setup-summary::after {
+  content: '-';
+}
+
+.confirmation-details {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.confirmation-summary {
+  list-style: none;
+  cursor: pointer;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.confirmation-summary::-webkit-details-marker {
+  display: none;
+}
+
+.confirmation-summary::after {
+  content: '+';
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.confirmation-details[open] .confirmation-summary::after {
+  content: '-';
 }
 
 tr:last-child td {
@@ -538,12 +623,14 @@ tbody tr:nth-child(even) td {
 }
 
 .logo-cell {
-  width: 42px;
+  width: 52px;
+  vertical-align: middle;
+  text-align: center;
 }
 
 .table-logo {
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid var(--line);
@@ -555,9 +642,15 @@ tbody tr:nth-child(even) td {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--muted);
+}
+
+.table-ticker {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--title);
 }
 
 .muted {
