@@ -4,8 +4,8 @@
   "private": true,
   "description": "App simples para consultar precos de acoes",
   "scripts": {
-    "dev": "node --watch server.js",
-    "start": "node server.js"
+    "dev": "node --watch backend/index.js",
+    "start": "node backend/index.js"
   },
   "dependencies": {
     "brapi": "^1.0.1"
