@@ -75,6 +75,11 @@ function createServer(config) {
       return;
     }
 
+    if (path === '/health') {
+      send(200, { ok: true, status: 'up' });
+      return;
+    }
+
     res.writeHead(404, {
       'Access-Control-Allow-Origin': config.corsAllowOrigin,
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
