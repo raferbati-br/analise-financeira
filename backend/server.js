@@ -2,6 +2,7 @@ const http = require('http');
 const { handleQuote } = require('./routes/quote');
 const { handleTickers } = require('./routes/tickers');
 const { handleHistory } = require('./routes/history');
+const { logRequest } = require('./utils/log');
 
 function sendJson(res, status, payload, config) {
   const body = JSON.stringify(payload, null, 2);
@@ -18,7 +19,12 @@ function sendJson(res, status, payload, config) {
 function createServer(config) {
   return http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
+    const startMs = Date.now();
     const send = (status, payload) => sendJson(res, status, payload, config);
+
+    res.on('finish', () => {
+      logRequest(req, res, startMs, url.pathname);
+    });
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
