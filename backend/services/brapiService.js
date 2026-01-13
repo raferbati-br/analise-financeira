@@ -1,27 +1,14 @@
-const Brapi = require('brapi');
+const { getBrapiClient } = require('../clients/brapiClient');
 
-const BRAPI_API_KEY = process.env.BRAPI_API_KEY || process.env.BRAPI_TOKEN || '';
 const BRAPI_TICKER_TYPES = process.env.BRAPI_TICKER_TYPES || 'stock';
 const TICKERS_CACHE_TTL = 1000 * 60 * 60;
 let tickersCache = { data: null, ts: 0 };
-let brapiClient = null;
 
 function normalizeSymbol(raw) {
   if (!raw) return '';
   const trimmed = raw.trim().toUpperCase();
   if (!trimmed) return '';
   return trimmed.split('.')[0];
-}
-
-function getBrapiClient() {
-  if (!brapiClient) {
-    brapiClient = new Brapi({
-      apiKey: BRAPI_API_KEY,
-      maxRetries: 2,
-      timeout: 15000
-    });
-  }
-  return brapiClient;
 }
 
 function formatBrapiError(err) {

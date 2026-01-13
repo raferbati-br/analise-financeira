@@ -1,9 +1,7 @@
 const http = require('http');
-const {
-  fetchAvailableTickers,
-  fetchHistory,
-  fetchQuote
-} = require('./api/brapi');
+const { handleQuote } = require('./routes/quote');
+const { handleTickers } = require('./routes/tickers');
+const { handleHistory } = require('./routes/history');
 
 const PORT = process.env.PORT || 3000;
 
@@ -22,6 +20,7 @@ function sendJson(res, status, payload) {
 function createServer() {
   return http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
+    const send = (status, payload) => sendJson(res, status, payload);
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
@@ -34,58 +33,17 @@ function createServer() {
     }
 
     if (url.pathname === '/api/quote') {
-      const raw = url.searchParams.get('symbols') || '';
-      const symbols = raw
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .slice(0, 10);
-
-      if (symbols.length === 0) {
-        sendJson(res, 400, { error: 'Informe symbols, ex: PETR4.SA,VALE3.SA' });
-        return;
-      }
-
-      try {
-        const results = await Promise.all(symbols.map(fetchQuote));
-        sendJson(res, 200, { symbols, results });
-      } catch (err) {
-        sendJson(res, 500, { error: 'Falha ao consultar preco', detail: String(err) });
-      }
+      await handleQuote(url, send);
       return;
     }
 
     if (url.pathname === '/api/tickers') {
-      const query = (url.searchParams.get('q') || '').trim().toUpperCase();
-      try {
-        const tickers = await fetchAvailableTickers();
-        const filtered = query
-          ? tickers.filter((item) => item.includes(query))
-          : tickers;
-        sendJson(res, 200, { count: filtered.length, results: filtered });
-      } catch (err) {
-        sendJson(res, 500, { error: 'Falha ao carregar lista', detail: String(err) });
-      }
+      await handleTickers(url, send);
       return;
     }
 
     if (url.pathname === '/api/history') {
-      const raw = url.searchParams.get('symbol') || url.searchParams.get('symbols') || '';
-      const symbol = raw.split(',').map((s) => s.trim()).filter(Boolean)[0];
-      const range = (url.searchParams.get('range') || '1mo').trim();
-      const interval = (url.searchParams.get('interval') || '1d').trim();
-
-      if (!symbol) {
-        sendJson(res, 400, { error: 'Informe symbol, ex: PETR4' });
-        return;
-      }
-
-      try {
-        const result = await fetchHistory(symbol, range, interval);
-        sendJson(res, 200, { symbol, range, interval, result });
-      } catch (err) {
-        sendJson(res, 500, { error: 'Falha ao carregar historico', detail: String(err) });
-      }
+      await handleHistory(url, send);
       return;
     }
 
