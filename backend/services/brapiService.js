@@ -1,4 +1,4 @@
-const { getBrapiClient } = require('../clients/brapiClient');
+const { quoteRetrieve, quoteList } = require('../clients/brapiClient');
 const config = require('../config');
 let tickersCache = { data: null, ts: 0 };
 
@@ -26,8 +26,7 @@ async function fetchQuote(symbol) {
     return { symbol, ok: false, error: 'Ticker vazio' };
   }
   try {
-    const client = getBrapiClient();
-    const data = await client.quote.retrieve(normalized, {
+    const data = await quoteRetrieve(normalized, {
       range: '1d',
       interval: '1d'
     });
@@ -58,8 +57,7 @@ async function fetchHistory(symbol, range, interval) {
     return { symbol, ok: false, error: 'Ticker vazio' };
   }
   try {
-    const client = getBrapiClient();
-    const data = await client.quote.retrieve(normalized, {
+    const data = await quoteRetrieve(normalized, {
       range,
       interval
     });
@@ -87,8 +85,7 @@ async function fetchAvailableTickers() {
     return tickersCache.data;
   }
   try {
-    const client = getBrapiClient();
-    const data = await client.quote.list({ limit: 10000, type: 'stock' });
+    const data = await quoteList({ limit: 10000, type: 'stock' });
     const list = Array.isArray(data?.stocks) ? data.stocks : [];
     const allowedTypes = config.brapiTickerTypes.split(',')
       .map((item) => item.trim().toLowerCase())
