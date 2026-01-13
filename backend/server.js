@@ -21,6 +21,11 @@ function createServer(config) {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const startMs = Date.now();
     const send = (status, payload) => sendJson(res, status, payload, config);
+    const apiPrefix = '/api';
+    const apiVersionPrefix = '/api/v1';
+    const path = url.pathname.startsWith(apiVersionPrefix)
+      ? url.pathname.slice(apiVersionPrefix.length) || '/'
+      : url.pathname;
 
     res.on('finish', () => {
       logRequest(req, res, startMs, url.pathname);
@@ -36,17 +41,17 @@ function createServer(config) {
       return;
     }
 
-    if (url.pathname === '/api/quote') {
+    if (path === `${apiPrefix}/quote`) {
       await handleQuote(url, send);
       return;
     }
 
-    if (url.pathname === '/api/tickers') {
+    if (path === `${apiPrefix}/tickers`) {
       await handleTickers(url, send);
       return;
     }
 
-    if (url.pathname === '/api/history') {
+    if (path === `${apiPrefix}/history`) {
       await handleHistory(url, send);
       return;
     }

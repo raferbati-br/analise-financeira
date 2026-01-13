@@ -32,7 +32,7 @@ BRAPI_API_KEY=SEU_TOKEN_AQUI
 npm run dev
 ```
 
-API em: http://localhost:3000
+API em: http://localhost:3000 (ou http://localhost:3000/api/v1)
 
 2) Frontend (estatico):
 
