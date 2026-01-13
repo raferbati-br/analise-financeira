@@ -1,7 +1,4 @@
-const { loadEnvFile } = require('./env');
-
-loadEnvFile();
-
+const config = require('./config');
 const { startServer } = require('./server');
 
-startServer();
+startServer(config);

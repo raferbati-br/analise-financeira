@@ -1,7 +1,5 @@
 const { getBrapiClient } = require('../clients/brapiClient');
-
-const BRAPI_TICKER_TYPES = process.env.BRAPI_TICKER_TYPES || 'stock';
-const TICKERS_CACHE_TTL = 1000 * 60 * 60;
+const config = require('../config');
 let tickersCache = { data: null, ts: 0 };
 
 function normalizeSymbol(raw) {
@@ -85,14 +83,14 @@ async function fetchHistory(symbol, range, interval) {
 
 async function fetchAvailableTickers() {
   const now = Date.now();
-  if (tickersCache.data && now - tickersCache.ts < TICKERS_CACHE_TTL) {
+  if (tickersCache.data && now - tickersCache.ts < config.tickersCacheTtlMs) {
     return tickersCache.data;
   }
   try {
     const client = getBrapiClient();
     const data = await client.quote.list({ limit: 10000, type: 'stock' });
     const list = Array.isArray(data?.stocks) ? data.stocks : [];
-    const allowedTypes = BRAPI_TICKER_TYPES.split(',')
+    const allowedTypes = config.brapiTickerTypes.split(',')
       .map((item) => item.trim().toLowerCase())
       .filter(Boolean);
     const tickers = list

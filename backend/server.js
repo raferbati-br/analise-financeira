@@ -3,12 +3,10 @@ const { handleQuote } = require('./routes/quote');
 const { handleTickers } = require('./routes/tickers');
 const { handleHistory } = require('./routes/history');
 
-const PORT = process.env.PORT || 3000;
-
-function sendJson(res, status, payload) {
+function sendJson(res, status, payload, config) {
   const body = JSON.stringify(payload, null, 2);
   res.writeHead(status, {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': config.corsAllowOrigin,
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json; charset=utf-8',
@@ -17,14 +15,14 @@ function sendJson(res, status, payload) {
   res.end(body);
 }
 
-function createServer() {
+function createServer(config) {
   return http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
-    const send = (status, payload) => sendJson(res, status, payload);
+    const send = (status, payload) => sendJson(res, status, payload, config);
 
     if (req.method === 'OPTIONS') {
       res.writeHead(204, {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': config.corsAllowOrigin,
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
       });
@@ -48,7 +46,7 @@ function createServer() {
     }
 
     res.writeHead(404, {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': config.corsAllowOrigin,
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type'
     });
@@ -56,10 +54,10 @@ function createServer() {
   });
 }
 
-function startServer() {
-  const server = createServer();
-  server.listen(PORT, () => {
-    console.log(`Servidor em http://localhost:${PORT}`);
+function startServer(config) {
+  const server = createServer(config);
+  server.listen(config.port, () => {
+    console.log(`Servidor em http://localhost:${config.port}`);
   });
 }
 
