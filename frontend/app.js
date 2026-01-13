@@ -6,6 +6,7 @@ import { renderTablePage } from './ui/table.js';
 import { debounce, formatNumber, formatPrice } from './ui/format.js';
 import { showStatus, clearStatus } from './ui/status.js';
 import { initTabs } from './ui/tabs.js';
+import { apiUrl } from './api.js';
 
 const statusCard = document.getElementById('status-card');
 const statusEl = document.getElementById('status');
@@ -233,7 +234,7 @@ function renderLastUpdated() {
 async function loadTickers() {
   showStatus(statusEl, statusCard, 'Carregando lista de acoes...');
   try {
-    const resp = await fetch('/api/tickers');
+    const resp = await fetch(apiUrl('/api/tickers'));
     const data = await resp.json();
     if (!resp.ok) {
       const detail = data.detail ? ` (${data.detail})` : '';

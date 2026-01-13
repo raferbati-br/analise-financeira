@@ -1,4 +1,5 @@
 import { state } from '../state.js';
+import { apiUrl } from '../api.js';
 
 export async function fetchHistoryCached(symbol, range, interval) {
   const key = `${symbol}|${range}|${interval}`;
@@ -8,7 +9,9 @@ export async function fetchHistoryCached(symbol, range, interval) {
   const promise = (async () => {
     try {
       const resp = await fetch(
-        `/api/history?symbol=${encodeURIComponent(symbol)}&range=${encodeURIComponent(range)}&interval=${encodeURIComponent(interval)}`
+        apiUrl(
+          `/api/history?symbol=${encodeURIComponent(symbol)}&range=${encodeURIComponent(range)}&interval=${encodeURIComponent(interval)}`
+        )
       );
       const data = await resp.json();
       if (!resp.ok || !data.result || !data.result.ok) {

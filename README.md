@@ -26,11 +26,23 @@ BRAPI_API_KEY=SEU_TOKEN_AQUI
 
 ## Rodar em desenvolvimento
 
+1) Backend (API):
+
 ```bash
 npm run dev
 ```
 
-Acesse: http://localhost:3000
+API em: http://localhost:3000
+
+2) Frontend (estatico):
+
+```bash
+npx serve -l 3001 frontend
+```
+
+Frontend em: http://localhost:3001
+
+Para apontar para outra URL da API, ajuste `API_BASE` em `frontend/config.js`.
 
 ## Funcionalidades
 - Resumo com sinal (comprar/vender/ficar fora) e logos
@@ -42,8 +54,8 @@ Acesse: http://localhost:3000
 - Cache local (TTL 24h) para reduzir chamadas
 
 ## Estrutura de Pastas
-- `backend/`: servidor Node.js e integracao com brapi
-- `frontend/`: app web estatico (HTML/CSS/JS)
+- `backend/`: servidor Node.js (API)
+- `frontend/`: app web estatico (HTML/CSS/JS), servido separadamente
 
 ## Arquitetura (C4)
 - `docs/arq/C1.md`

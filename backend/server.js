@@ -1,6 +1,4 @@
 const http = require('http');
-const fs = require('fs');
-const path = require('path');
 const {
   fetchAvailableTickers,
   fetchHistory,
@@ -8,33 +6,32 @@ const {
 } = require('./api/brapi');
 
 const PORT = process.env.PORT || 3000;
-const PUBLIC_DIR = path.join(__dirname, '..', 'frontend');
-
-const MIME = {
-  '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.ico': 'image/x-icon'
-};
 
 function sendJson(res, status, payload) {
   const body = JSON.stringify(payload, null, 2);
   res.writeHead(status, {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json; charset=utf-8',
     'Content-Length': Buffer.byteLength(body)
   });
   res.end(body);
 }
 
-function safeJoin(base, target) {
-  const normalized = path.normalize(target).replace(/^([/\\])+/, '');
-  return path.join(base, normalized);
-}
-
 function createServer() {
   return http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
+
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      });
+      res.end();
+      return;
+    }
 
     if (url.pathname === '/api/quote') {
       const raw = url.searchParams.get('symbols') || '';
@@ -92,25 +89,12 @@ function createServer() {
       return;
     }
 
-    const reqPath = url.pathname === '/' ? '/index.html' : url.pathname;
-    const filePath = safeJoin(PUBLIC_DIR, reqPath);
-
-    if (!filePath.startsWith(PUBLIC_DIR)) {
-      res.writeHead(403);
-      res.end('Forbidden');
-      return;
-    }
-
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        res.writeHead(404);
-        res.end('Not found');
-        return;
-      }
-      const ext = path.extname(filePath).toLowerCase();
-      res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
-      res.end(data);
+    res.writeHead(404, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
     });
+    res.end('Not found');
   });
 }
 
