@@ -1,10 +1,8 @@
 const { fetchHistory } = require('../services/brapiService');
+const { parseHistoryParams } = require('../utils/validate');
 
 async function handleHistory(url, sendJson) {
-  const raw = url.searchParams.get('symbol') || url.searchParams.get('symbols') || '';
-  const symbol = raw.split(',').map((s) => s.trim()).filter(Boolean)[0];
-  const range = (url.searchParams.get('range') || '1mo').trim();
-  const interval = (url.searchParams.get('interval') || '1d').trim();
+  const { symbol, range, interval } = parseHistoryParams(url);
 
   if (!symbol) {
     sendJson(400, { error: 'Informe symbol, ex: PETR4' });

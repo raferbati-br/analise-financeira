@@ -1,7 +1,8 @@
 const { fetchAvailableTickers } = require('../services/brapiService');
+const { parseTickerQuery } = require('../utils/validate');
 
 async function handleTickers(url, sendJson) {
-  const query = (url.searchParams.get('q') || '').trim().toUpperCase();
+  const query = parseTickerQuery(url);
   try {
     const tickers = await fetchAvailableTickers();
     const filtered = query

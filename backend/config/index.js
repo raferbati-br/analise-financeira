@@ -16,7 +16,9 @@ const config = {
   tickersCacheTtlMs: parseIntOrDefault(process.env.TICKERS_CACHE_TTL_MS, 1000 * 60 * 60),
   quoteCacheTtlMs: parseIntOrDefault(process.env.QUOTE_CACHE_TTL_MS, 60 * 1000),
   historyCacheTtlMs: parseIntOrDefault(process.env.HISTORY_CACHE_TTL_MS, 5 * 60 * 1000),
-  corsAllowOrigin: process.env.CORS_ALLOW_ORIGIN || '*'
+  corsAllowOrigin: process.env.CORS_ALLOW_ORIGIN || '*',
+  rateLimitWindowMs: parseIntOrDefault(process.env.RATE_LIMIT_WINDOW_MS, 60 * 1000),
+  rateLimitMax: parseIntOrDefault(process.env.RATE_LIMIT_MAX, 120)
 };
 
 function validateConfig(values) {
