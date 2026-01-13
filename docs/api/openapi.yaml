@@ -1,0 +1,147 @@
+openapi: 3.0.3
+info:
+  title: Analise Financeira API
+  version: 1.0.0
+  description: API para cotacoes e historico via brapi.dev
+servers:
+  - url: http://localhost:3000
+    description: Local (sem versao)
+  - url: http://localhost:3000/api/v1
+    description: Local (v1)
+paths:
+  /api/tickers:
+    get:
+      summary: Lista de tickers
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Filtro parcial de ticker (opcional)
+      responses:
+        '200':
+          description: Lista de tickers filtrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      type: string
+        '500':
+          description: Falha ao carregar lista
+  /api/quote:
+    get:
+      summary: Cotacoes por symbols
+      parameters:
+        - in: query
+          name: symbols
+          required: true
+          schema:
+            type: string
+          description: Lista separada por virgula (max 10)
+      responses:
+        '200':
+          description: Cotacoes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbols:
+                    type: array
+                    items:
+                      type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        ok:
+                          type: boolean
+                        error:
+                          type: string
+                          nullable: true
+                        timestamp:
+                          type: integer
+                          nullable: true
+                        open:
+                          type: number
+                          nullable: true
+                        high:
+                          type: number
+                          nullable: true
+                        low:
+                          type: number
+                          nullable: true
+                        close:
+                          type: number
+                          nullable: true
+                        volume:
+                          type: number
+                          nullable: true
+        '400':
+          description: Symbols vazio
+        '500':
+          description: Falha ao consultar preco
+  /api/history:
+    get:
+      summary: Historico de preco
+      parameters:
+        - in: query
+          name: symbol
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: range
+          schema:
+            type: string
+            default: 1mo
+        - in: query
+          name: interval
+          schema:
+            type: string
+            default: 1d
+      responses:
+        '200':
+          description: Historico e metadados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  range:
+                    type: string
+                  interval:
+                    type: string
+                  result:
+                    type: object
+                    properties:
+                      ok:
+                        type: boolean
+                      error:
+                        type: string
+                        nullable: true
+                      history:
+                        type: array
+                        items:
+                          type: object
+                      logo:
+                        type: string
+                        nullable: true
+                      name:
+                        type: string
+                        nullable: true
+        '400':
+          description: Symbol vazio
+        '500':
+          description: Falha ao carregar historico

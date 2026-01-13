@@ -63,6 +63,9 @@ Para apontar para outra URL da API, ajuste `API_BASE` em `frontend/config.js`.
 - `docs/arq/C3.md`
 - `docs/arq/C4.md`
 
+## Contrato da API (OpenAPI)
+- `docs/api/openapi.yaml`
+
 ## Notas
 - Alguns ativos exigem plano com permissao especifica (ex.: BDR).
 - Ajuste `BRAPI_TICKER_TYPES` no `.env` se quiser listar outros tipos.
