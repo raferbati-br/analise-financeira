@@ -9,6 +9,21 @@ servers:
   - url: http://localhost:3000/api/v1
     description: Local (v1)
 paths:
+  /health:
+    get:
+      summary: Healthcheck
+      responses:
+        '200':
+          description: Status do servico
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: string
   /api/tickers:
     get:
       summary: Lista de tickers
