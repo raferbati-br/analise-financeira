@@ -1,5 +1,9 @@
 const { quoteRetrieve, quoteList } = require('../clients/brapiClient');
+const { createCache } = require('../utils/cache');
 const config = require('../config');
+
+const quoteCache = createCache(config.quoteCacheTtlMs);
+const historyCache = createCache(config.historyCacheTtlMs);
 let tickersCache = { data: null, ts: 0 };
 
 function normalizeSymbol(raw) {
@@ -25,6 +29,10 @@ async function fetchQuote(symbol) {
   if (!normalized) {
     return { symbol, ok: false, error: 'Ticker vazio' };
   }
+  const cached = quoteCache.get(normalized);
+  if (cached) {
+    return cached;
+  }
   try {
     const data = await quoteRetrieve(normalized, {
       range: '1d',
@@ -34,7 +42,7 @@ async function fetchQuote(symbol) {
     if (!result) {
       return { symbol: normalized, ok: false, error: 'Nao encontrado' };
     }
-    return {
+    return quoteCache.set(normalized, {
       symbol: result.symbol || normalized,
       ok: true,
       timestamp: result.regularMarketTime
@@ -45,7 +53,7 @@ async function fetchQuote(symbol) {
       low: result.regularMarketDayLow,
       close: result.regularMarketPrice,
       volume: result.regularMarketVolume
-    };
+    });
   } catch (err) {
     return { symbol: normalized, ok: false, error: formatBrapiError(err) };
   }
@@ -55,6 +63,11 @@ async function fetchHistory(symbol, range, interval) {
   const normalized = normalizeSymbol(symbol);
   if (!normalized) {
     return { symbol, ok: false, error: 'Ticker vazio' };
+  }
+  const key = `${normalized}|${range}|${interval}`;
+  const cached = historyCache.get(key);
+  if (cached) {
+    return cached;
   }
   try {
     const data = await quoteRetrieve(normalized, {
@@ -67,13 +80,13 @@ async function fetchHistory(symbol, range, interval) {
       : [];
     const logo = result?.logourl || result?.logoUrl || null;
     const name = result?.longName || result?.shortName || result?.name || null;
-    return {
+    return historyCache.set(key, {
       symbol: result?.symbol || normalized,
       ok: true,
       history,
       logo,
       name
-    };
+    });
   } catch (err) {
     return { symbol: normalized, ok: false, error: formatBrapiError(err) };
   }

@@ -14,6 +14,8 @@ const config = {
   brapiTimeoutMs: parseIntOrDefault(process.env.BRAPI_TIMEOUT_MS, 15000),
   brapiMaxRetries: parseIntOrDefault(process.env.BRAPI_MAX_RETRIES, 2),
   tickersCacheTtlMs: parseIntOrDefault(process.env.TICKERS_CACHE_TTL_MS, 1000 * 60 * 60),
+  quoteCacheTtlMs: parseIntOrDefault(process.env.QUOTE_CACHE_TTL_MS, 60 * 1000),
+  historyCacheTtlMs: parseIntOrDefault(process.env.HISTORY_CACHE_TTL_MS, 5 * 60 * 1000),
   corsAllowOrigin: process.env.CORS_ALLOW_ORIGIN || '*'
 };
 
