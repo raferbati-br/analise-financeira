@@ -42,7 +42,7 @@ npx serve -l 3001 frontend
 
 Frontend em: http://localhost:3001
 
-Para apontar para outra URL da API, ajuste `API_BASE` em `frontend/config.js`.
+Para apontar para outra URL da API, ajuste `API_BASE` em `frontend/config/index.js`.
 
 ## Funcionalidades
 - Resumo com sinal (comprar/vender/ficar fora) e logos

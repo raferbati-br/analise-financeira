@@ -1,4 +1,4 @@
-const { loadEnvFile } = require('../env');
+const { loadEnvFile } = require('./env');
 
 loadEnvFile();
 
